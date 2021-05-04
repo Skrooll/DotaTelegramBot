@@ -63,7 +63,34 @@ class Parser:
         res.reverse()
         return res
     
+    def getProfileData(self, SteamID32):
+        url = "https://ru.dotabuff.com/players/" + SteamID32
+        text = self.getPage(url).replace('&#39;', "'")
+        nick = re.search('<h1>([^<]*?)<small>', text).group(1)
+        try:
+            solommr = re.search('<dd class="rating-expired">([^<]*?) <(.*)<dt>Одиночный MMR', text).group(1)
+        except:
+            solommr = ''
+        # try:
+        #     groupmmr = re.search('<dd class="rating-expired">([^<]*?) <(.*)<dt>Групповой рейтинг', text).group(1)
+        # except:
+        #     groupmmr = ''
+        pattern = '<a href="\/players\/{}\/matches\?hero=[^"]*">([^<]*?)<\/a><div class="subtext minor">'.format(SteamID32)
+        heros = re.findall(pattern, text)
+        pattern = '<div class="r-label">Матчи<\/div><div class="r-body">([^<]*?)<div class="bar bar-default">'
+        wins = re.findall(pattern, text)
+        pattern = '<div class="r-body">([^<]*?)<div class="bar bar-default"><div class="segment segment-win"'
+        winrates = re.findall(pattern, text)
+        pattern = '<div class="r-label">УСП</div><div class="r-body">([^<]*?)<div class="bar bar-default"><div class="segment segment-kda" '
+        kdas = re.findall(pattern, text)
+        res = ''
+        res += nick + '\n'
+        res += 'Solo MMR: '+solommr + '\n'
+        for hero, matches, winrate, kda in zip(heros, wins, winrates, kdas):
+            res += " ".join([hero, matches+' matches', winrate+' wr', kda+' KDA'])+'\n'
+        return res
+    
 if __name__ == '__main__':
     url = "https://ru.dotabuff.com/heroes/abaddon"
     parser = Parser()
-    print(parser.getCounterPick(['Abaddon', 'Ancient Apparition']))
+    parser.getProfileData('41231571')
