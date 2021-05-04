@@ -6,9 +6,15 @@ from telebot import types
 bot = telebot.TeleBot(token, parse_mode=None)
 parser = Parser()
 
+markup = types.ReplyKeyboardMarkup(row_width=2)
+itembtn1 = types.KeyboardButton('/herodata')
+itembtn2 = types.KeyboardButton('/profile')
+itembtn3 = types.KeyboardButton('/counter')
+markup.add(itembtn1, itembtn2, itembtn3)
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-	bot.reply_to(message, "Howdy, how are you doing? Type /help for help.")
+	bot.reply_to(message, "Howdy, how are you doing? Type /help for help.", reply_markup=markup)
     
 @bot.message_handler(commands=['help'])
 def send_help(message):
@@ -23,7 +29,7 @@ def process_hero(message):
     try:
         chat_id = message.chat.id
         name = message.text
-        msg = bot.reply_to(message, parser.getHeroData(name))
+        msg = bot.reply_to(message, parser.getHeroData(name), reply_markup=markup)
     except Exception as e:
         bot.reply_to(message, e)
     
@@ -33,10 +39,13 @@ def send_pickhelper(message):
     bot.register_next_step_handler(msg, process_emenies)
 
 def process_emenies(message):
-    chat_id = message.chat.id
-    text = message.text
-    suggested =  parser.getCounterPick(text.split(', '))
-    msg = bot.reply_to(message, "We suggest you to pick {0}, {1}, {2}, {3} or {4}".format(*suggested))
+    try:
+        chat_id = message.chat.id
+        text = message.text
+        suggested =  parser.getCounterPick(text.split(', '))
+        msg = bot.reply_to(message, "We suggest you to pick {0}, {1}, {2}, {3} or {4}".format(*suggested), reply_markup=markup)
+    except Exception as e:
+        bot.reply_to(message, e)
 
 @bot.message_handler(commands=['profile'])
 def send_herodata(message):
@@ -47,7 +56,7 @@ def process_id(message):
     try:
         chat_id = message.chat.id
         name = message.text
-        msg = bot.reply_to(message, parser.getProfileData(name))
+        msg = bot.reply_to(message, parser.getProfileData(name), reply_markup=markup)
     except Exception as e:
         bot.reply_to(message, e)
 
