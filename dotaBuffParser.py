@@ -1,9 +1,5 @@
 from requests_html import HTMLSession
 import re
-import asyncio
-if asyncio.get_event_loop().is_running(): # Only patch if needed (i.e. running in Notebook, Spyder, etc)
-    import nest_asyncio
-    nest_asyncio.apply()
 
 class Parser:
     
